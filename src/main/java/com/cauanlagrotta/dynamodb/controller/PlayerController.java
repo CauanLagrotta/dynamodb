@@ -45,8 +45,7 @@ public class PlayerController {
 
   @GetMapping("/{username}/games/{gameId}")
   public ResponseEntity<PlayerHistoryEntity> findById(@PathVariable("username") String username,
-                                                      @PathVariable("gameId") String gameId,
-                                                      @RequestBody ScoreDTO scoreDTO) {
+                                                      @PathVariable("gameId") String gameId) {
 
     var entity = dynamoDbTemplate.load(Key.builder()
             .partitionValue(username)
@@ -70,6 +69,21 @@ public class PlayerController {
 
     entity.setScore(scoreDTO.score());
     dynamoDbTemplate.save(entity);
+    return ResponseEntity.noContent().build();
+  }
+
+  @DeleteMapping("/{username}/games/{gameId}")
+  public ResponseEntity<Void> delete(@PathVariable("username") String username,
+                                     @PathVariable("gameId") String gameId) {
+
+    var entity = dynamoDbTemplate.load(Key.builder()
+        .partitionValue(username)
+        .sortValue(gameId)
+        .build(), PlayerHistoryEntity.class);
+
+    if(entity == null){ return ResponseEntity.notFound().build(); }
+
+    dynamoDbTemplate.delete(entity);
     return ResponseEntity.noContent().build();
   }
 }
