@@ -42,4 +42,16 @@ public class PlayerController {
     var history = dynamoDbTemplate.query(query, PlayerHistoryEntity.class);
     return ResponseEntity.ok(history.items().stream().toList());
   }
+
+  @GetMapping("/{username}/games/{gameId}")
+  public ResponseEntity<PlayerHistoryEntity> findById(@PathVariable("username") String username,
+                                                      @PathVariable("gameId") String gameId) {
+
+    var entity = dynamoDbTemplate.load(Key.builder()
+            .partitionValue(username)
+            .sortValue(gameId)
+            .build(), PlayerHistoryEntity.class);
+
+    return entity == null ? ResponseEntity.notFound().build() : ResponseEntity.ok(entity);
+  }
 }
