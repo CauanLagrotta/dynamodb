@@ -1,9 +1,11 @@
 package com.cauanlagrotta.dynamodb.config;
 
+import io.awspring.cloud.dynamodb.DynamoDbTemplate;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import software.amazon.awssdk.auth.credentials.AwsBasicCredentials;
 import software.amazon.awssdk.auth.credentials.StaticCredentialsProvider;
+import software.amazon.awssdk.enhanced.dynamodb.DynamoDbEnhancedClient;
 import software.amazon.awssdk.regions.Region;
 import software.amazon.awssdk.services.dynamodb.DynamoDbClient;
 
@@ -20,5 +22,17 @@ public class DynamoDbConfig {
         .credentialsProvider(StaticCredentialsProvider.create(
             AwsBasicCredentials.create("test", "test")))
         .build();
+  }
+
+  @Bean
+  public DynamoDbEnhancedClient dynamoDbEnhancedClient(DynamoDbClient dynamoDbClient) {
+    return DynamoDbEnhancedClient.builder()
+        .dynamoDbClient(dynamoDbClient)
+        .build();
+  }
+
+  @Bean
+  public DynamoDbTemplate dynamoDbTemplate(DynamoDbEnhancedClient dynamoDbEnhancedClient) {
+    return new DynamoDbTemplate(dynamoDbEnhancedClient);
   }
 }
